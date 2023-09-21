@@ -60,7 +60,6 @@ public class MultiplicationBenchmark
         return d * d;
     }
     
-    
     [Benchmark]
     public FastDecimal64<TwelveFractionalDigits> FastDecimalMultiplicationVeryBig()
     {
@@ -88,6 +87,4 @@ public class MultiplicationBenchmark
         var d = _decimalMax;
         return d * d;
     }
-    
-    
 }

@@ -6,6 +6,7 @@ using FastDecimal.FractionalDigits;
 
 namespace FastDecimal;
 
+/// <summary>Represents a 64-bit signed fixed-point decimal number.</summary>
 public readonly struct FastDecimal64<T> : 
     INumber<FastDecimal64<T>>,
     ISignedNumber<FastDecimal64<T>>,
@@ -22,46 +23,66 @@ public readonly struct FastDecimal64<T> :
         _value = value;
     }
 
+    /// <inheritdoc cref="IAdditionOperators{TSelf, TOther, TResult}.op_Addition(TSelf, TOther)" />
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static FastDecimal64<T> operator +(FastDecimal64<T> left, FastDecimal64<T> right)
     {
         return new FastDecimal64<T>(left._value + right._value);
     }
 
+    /// <inheritdoc cref="IAdditionOperators{TSelf, TOther, TResult}.op_CheckedAddition(TSelf, TOther)" />
     public static FastDecimal64<T> operator checked +(FastDecimal64<T> left, FastDecimal64<T> right)
     {
         return new FastDecimal64<T>(checked(left._value + right._value));
     }
 
-    public FastDecimal64<T2> ChangePrecision<T2>(MidpointRounding mode = MidpointRounding.ToEven) where T2 : struct, IFractionalDigits
+    /// <summary>Converts the current <see cref="FastDecimal64{T}" /> to a <see cref="FastDecimal64{TResult}" /> of a different precision, throwing an overflow exception for any values that fall outside the representable range.</summary>
+    /// <param name="mode">One of the enumeration values that specifies which rounding strategy to use.</param>
+    /// <returns>The current <see cref="FastDecimal64{T}" /> converted to a <see cref="FastDecimal64{TResult}" />.</returns>
+    /// <exception cref="ArgumentException"><paramref name="mode" /> is not a MidpointRounding value.</exception>
+    /// <exception cref="OverflowException">The current <see cref="FastDecimal64{T}" /> is not representable by <see cref="FastDecimal64{TResult}" />.</exception>
+    public FastDecimal64<TResult> ChangePrecision<TResult>(MidpointRounding mode = MidpointRounding.ToEven) where TResult : struct, IFractionalDigits
     {
-        var dstDigits = FastDecimal64<T2>.GetFractionalDigits();
+        var dstDigits = FastDecimal64<TResult>.GetFractionalDigits();
         var srcDigits = GetFractionalDigits();
         
         if (dstDigits >= srcDigits)
-            return new FastDecimal64<T2>(checked(_value * (long) Fast128BitDiv.GetDivisorLow(dstDigits - srcDigits)));
+            return new FastDecimal64<TResult>(checked(_value * (long) Fast128BitDiv.GetDivisorLow(dstDigits - srcDigits)));
 
         ConvertToUnsigned(this, out var unsignedValue, out var negative);
 
         var (q, r) = Math.DivRem(unsignedValue, Fast128BitDiv.GetDivisorLow(srcDigits - dstDigits));
         q += Rounding.Round64(q, r, Fast128BitDiv.GetDivisorLow(srcDigits - dstDigits), negative, mode);
 
-        return new FastDecimal64<T2>(negative ? -(long) q : (long) q);
+        return new FastDecimal64<TResult>(negative ? -(long) q : (long) q);
     }
-
+    
+    /// <summary>Multiplies two values together to compute their product.</summary>
+    /// <param name="left">The value which <paramref name="right" /> multiplies.</param>
+    /// <param name="right">The value which multiplies <paramref name="left" />.</param>
+    /// <param name="mode">One of the enumeration values that specifies which rounding strategy to use.</param>
+    /// <returns>The product of <paramref name="left" /> multiplied-by <paramref name="right" />.</returns>
+    /// <exception cref="ArgumentException"><paramref name="mode" /> is not a MidpointRounding value.</exception>
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public static FastDecimal64<T> Multiply(FastDecimal64<T> left, FastDecimal64<T> right, MidpointRounding mode = MidpointRounding.ToEven)
+    public static FastDecimal64<T> Multiply(FastDecimal64<T> left, FastDecimal64<T> right, MidpointRounding mode)
     {
         return MultiplyInternal(left, right, mode, false);
     }
 
+    /// <summary>Multiplies two values together to compute their product.</summary>
+    /// <param name="left">The value which <paramref name="right" /> multiplies.</param>
+    /// <param name="right">The value which multiplies <paramref name="left" />.</param>
+    /// <param name="mode">One of the enumeration values that specifies which rounding strategy to use.</param>
+    /// <returns>The product of <paramref name="left" /> multiplied-by <paramref name="right" />.</returns>
+    /// <exception cref="ArgumentException"><paramref name="mode" /> is not a MidpointRounding value.</exception>
+    /// <exception cref="OverflowException">The product of <paramref name="left" /> multiplied-by <paramref name="right" /> is not representable by <typeparamref name="TResult" />.</exception>
+
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public static FastDecimal64<T> MultiplyChecked(FastDecimal64<T> left, FastDecimal64<T> right, MidpointRounding mode = MidpointRounding.ToEven)
+    public static FastDecimal64<T> MultiplyChecked(FastDecimal64<T> left, FastDecimal64<T> right, MidpointRounding mode)
     {
         return MultiplyInternal(left, right, mode, true);
     }
-
-
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static FastDecimal64<T> MultiplyInternal(FastDecimal64<T> left, FastDecimal64<T> right, MidpointRounding mode, bool isChecked)
     {
@@ -107,12 +128,27 @@ public readonly struct FastDecimal64<T> :
             }
         }
     } 
+    
+    /// <summary>Explicitly converts a <see cref="long" /> to a <see cref="FastDecimal64{T}" /> value, throwing an overflow exception for any values that fall outside the representable range.</summary>
+    /// <param name="value">The value to convert.</param>
+    /// <returns><paramref name="value" /> converted to a <see cref="FastDecimal64{T}" />.</returns>
+    /// <exception cref="OverflowException"><paramref name="value" /> is not representable by <see cref="FastDecimal64{T}" />.</exception>
+    public static explicit operator checked FastDecimal64<T>(long value)
+    {
+        return new FastDecimal64<T>(checked(value * unchecked((long) GetDivisor())));
+    }
 
+    /// <summary>Explicitly converts a <see cref="long" /> to a <see cref="FastDecimal64{T}" /> value.</summary>
+    /// <param name="value">The value to convert.</param>
+    /// <returns><paramref name="value" /> converted to a <see cref="FastDecimal64{T}" />.</returns>
     public static explicit operator FastDecimal64<T>(long value)
     {
         return new FastDecimal64<T>(value * (long) GetDivisor());
     }
 
+    /// <summary>Explicitly converts a <see cref="FastDecimal64{T}" /> to a <see cref="decimal" /> value.</summary>
+    /// <param name="value">The value to convert.</param>
+    /// <returns><paramref name="value" /> converted to a <see cref="decimal" />.</returns>
     public static explicit operator decimal(FastDecimal64<T> value)
     {
         var scale = GetFractionalDigits();
@@ -121,12 +157,13 @@ public readonly struct FastDecimal64<T> :
         return new decimal((int) unsignedValue, (int) (unsignedValue >> 32), 0, negative, (byte) scale);
     }
 
-
+    /// <inheritdoc cref="object.ToString()" />
     public override string ToString()
     {
         return ((decimal) this).ToString();
     }
-
+    
+    /// <inheritdoc cref="IComparable.CompareTo(object)" />
     public int CompareTo(object? value)
     {
         if (value == null)
@@ -138,55 +175,79 @@ public readonly struct FastDecimal64<T> :
         
         return CompareTo(other);
     }
-
+    
+    /// <inheritdoc cref="IComparable{T}.CompareTo(T)" />
     public int CompareTo(FastDecimal64<T> other)
     {
         return _value.CompareTo(other._value);
     }
 
+    /// <inheritdoc cref="IFormattable.ToString(string?,System.IFormatProvider?)" />
     public string ToString(string? format, IFormatProvider? formatProvider)
     {
         return ((decimal) this).ToString(format, formatProvider);
     }
 
+    /// <inheritdoc cref="ISpanFormattable.TryFormat(Span&lt;char&gt;,out int, ReadOnlySpan&lt;char&gt;, IFormatProvider?)" />
     public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
     {
         return ((decimal) this).TryFormat(destination, out charsWritten, format, provider);
     }
 
+    /// <inheritdoc cref="IAdditiveIdentity{TSelf, TResult}.AdditiveIdentity" />
     public static FastDecimal64<T> AdditiveIdentity { get; } = new FastDecimal64<T>(0);
 
+    /// <inheritdoc cref="IEqualityOperators{TSelf, TOther, TResult}.op_Equality(TSelf, TOther)" />
     public static bool operator ==(FastDecimal64<T> left, FastDecimal64<T> right) => left._value == right._value;
 
+    /// <inheritdoc cref="IEqualityOperators{TSelf, TOther, TResult}.op_Inequality(TSelf, TOther)" />
     public static bool operator !=(FastDecimal64<T> left, FastDecimal64<T> right) => left._value != right._value;
 
+    /// <inheritdoc cref="IComparisonOperators{TSelf, TOther, TResult}.op_GreaterThan(TSelf, TOther)" />
     public static bool operator >(FastDecimal64<T> left, FastDecimal64<T> right) => left._value > right._value;
 
+    /// <inheritdoc cref="IComparisonOperators{TSelf, TOther, TResult}.op_GreaterThanOrEqual(TSelf, TOther)" />
     public static bool operator >=(FastDecimal64<T> left, FastDecimal64<T> right) => left._value >= right._value;
 
+    /// <inheritdoc cref="IComparisonOperators{TSelf, TOther, TResult}.op_LessThan(TSelf, TOther)" />
     public static bool operator <(FastDecimal64<T> left, FastDecimal64<T> right) => left._value < right._value;
 
+    /// <inheritdoc cref="IComparisonOperators{TSelf, TOther, TResult}.op_LessThanOrEqual(TSelf, TOther)" />
     public static bool operator <=(FastDecimal64<T> left, FastDecimal64<T> right) => left._value <= right._value;
 
-
+    /// <inheritdoc cref="IDivisionOperators{TSelf, TOther, TResult}.op_Division(TSelf, TOther)" />
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static FastDecimal64<T> operator /(FastDecimal64<T> left, FastDecimal64<T> right)
     {
         return DivideInternal(left, right, MidpointRounding.ToEven, false);
     }
 
+    /// <inheritdoc cref="IDivisionOperators{TSelf, TOther, TResult}.op_CheckedDivision(TSelf, TOther)" />
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static FastDecimal64<T> operator checked /(FastDecimal64<T> left, FastDecimal64<T> right)
     {
         return DivideInternal(left, right, MidpointRounding.ToEven, true);
     }
 
+    /// <summary>Divides two values together to compute their quotient.</summary>
+    /// <param name="left">The value which <paramref name="right" /> divides.</param>
+    /// <param name="right">The value which divides <paramref name="left" />.</param>
+    /// <param name="mode">One of the enumeration values that specifies which rounding strategy to use.</param>;
+    /// <returns>The quotient of <paramref name="left" /> divided-by <paramref name="right" />.</returns>
+    /// <exception cref="ArgumentException"><paramref name="mode" /> is not a MidpointRounding value.</exception>
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static FastDecimal64<T> Divide(FastDecimal64<T> left, FastDecimal64<T> right, MidpointRounding mode)
     {
         return DivideInternal(left, right, mode, false);
     }
-
+    
+    /// <summary>Divides two values together to compute their quotient.</summary>
+    /// <param name="left">The value which <paramref name="right" /> divides.</param>
+    /// <param name="right">The value which divides <paramref name="left" />.</param>
+    /// <param name="mode">One of the enumeration values that specifies which rounding strategy to use.</param>;
+    /// <returns>The quotient of <paramref name="left" /> divided-by <paramref name="right" />.</returns>
+    /// <exception cref="ArgumentException"><paramref name="mode" /> is not a MidpointRounding value.</exception>
+    /// <exception cref="OverflowException">The quotient of <paramref name="left" /> divided-by <paramref name="right" /> is not representable by <href name="FastDecimal64{T}" />.</exception>
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static FastDecimal64<T> DivideChecked(FastDecimal64<T> left, FastDecimal64<T> right, MidpointRounding mode)
     {
@@ -295,85 +356,141 @@ public readonly struct FastDecimal64<T> :
         }
     }
 
+    /// <inheritdoc cref="IIncrementOperators{TSelf}.op_Increment(TSelf)" />
     public static FastDecimal64<T> operator ++(FastDecimal64<T> value)
     {
         var div = GetDivisor();
         return new FastDecimal64<T>(value._value + (long) div);
     }
 
+    /// <inheritdoc cref="IIncrementOperators{TSelf}.op_CheckedIncrement(TSelf)" />
     public static FastDecimal64<T> operator checked ++(FastDecimal64<T> value)
     {
         var div = GetDivisor();
         return new FastDecimal64<T>(checked(value._value + (long) div));
     }
 
+    /// <inheritdoc cref="IDecrementOperators{TSelf}.op_Decrement(TSelf)" />
     public static FastDecimal64<T> operator --(FastDecimal64<T> value)
     {
         var div = GetDivisor();
         return new FastDecimal64<T>(value._value - (long) div);
     }
 
+    /// <inheritdoc cref="IDecrementOperators{TSelf}.op_CheckedDecrement(TSelf)" />
     public static FastDecimal64<T> operator checked --(FastDecimal64<T> value)
     {
         var div = GetDivisor();
         return new FastDecimal64<T>(checked(value._value - (long) div));
     }
 
+    /// <inheritdoc cref="IMinMaxValue{TSelf}.MaxValue" />
     public static FastDecimal64<T> MaxValue => new FastDecimal64<T>(long.MaxValue);
 
+    /// <inheritdoc cref="IMinMaxValue{TSelf}.MinValue" />
     public static FastDecimal64<T> MinValue => new FastDecimal64<T>(long.MinValue);
 
+    /// <inheritdoc cref="IMultiplicativeIdentity{TSelf, TResult}.MultiplicativeIdentity" />
     public static FastDecimal64<T> MultiplicativeIdentity => new FastDecimal64<T>((long) GetDivisor());
 
+    /// <inheritdoc cref="IMultiplyOperators{TSelf, TOther, TResult}.op_Multiply(TSelf, TOther)" />
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static FastDecimal64<T> operator *(FastDecimal64<T> left, FastDecimal64<T> right)
     {
         return MultiplyInternal(left, right, MidpointRounding.ToEven, isChecked: false);
     }
 
+    /// <inheritdoc cref="IMultiplyOperators{TSelf, TOther, TResult}.op_CheckedMultiply(TSelf, TOther)" />
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static FastDecimal64<T> operator checked *(FastDecimal64<T> left, FastDecimal64<T> right)
     {
         return MultiplyInternal(left, right, MidpointRounding.ToEven, isChecked: true);
     }
 
+    /// <inheritdoc cref="ISubtractionOperators{TSelf, TOther, TResult}.op_Subtraction(TSelf, TOther)" />
     public static FastDecimal64<T> operator -(FastDecimal64<T> left, FastDecimal64<T> right)
     {
         return new FastDecimal64<T>(left._value - right._value);
     }
 
+    /// <inheritdoc cref="ISubtractionOperators{TSelf, TOther, TResult}.op_CheckedSubtraction(TSelf, TOther)" />
     public static FastDecimal64<T> operator checked -(FastDecimal64<T> left, FastDecimal64<T> right)
     {
         return new FastDecimal64<T>(checked(left._value - right._value));
     }
 
-    public bool Equals(FastDecimal64<T> other)
-    {
-        return _value == other._value;
-    }
-
+    /// <inheritdoc cref="IUnaryPlusOperators{TSelf, TResult}.op_UnaryPlus(TSelf)" />
     public static FastDecimal64<T> operator +(FastDecimal64<T> value) => value;
 
+    /// <inheritdoc cref="IUnaryNegationOperators{TSelf, TResult}.op_UnaryNegation(TSelf)" />
+    public static FastDecimal64<T> operator -(FastDecimal64<T> value)
+    {
+        return new FastDecimal64<T>(-value._value);
+    }
+
+    /// <inheritdoc cref="IUnaryNegationOperators{TSelf, TResult}.op_CheckedUnaryNegation(TSelf)" /> 
+    public static FastDecimal64<T> operator checked -(FastDecimal64<T> value)
+    {
+        return new FastDecimal64<T>(checked(-value._value));
+    }
+
+    /// <inheritdoc cref="IModulusOperators{TSelf, TOther, TResult}.op_Modulus(TSelf, TOther)" />
     public static FastDecimal64<T> operator %(FastDecimal64<T> left, FastDecimal64<T> right)
     {
         return new FastDecimal64<T>(left._value % right._value);
     }
 
+    /// <inheritdoc cref="object.Equals(object?)" />
     public override bool Equals(object? obj)
     {
         return obj is FastDecimal64<T> other && Equals(other);
     }
 
+    /// <inheritdoc cref="IEquatable{T}.Equals(T)" />
+    public bool Equals(FastDecimal64<T> other)
+    {
+        return _value == other._value;
+    }
+
+    /// <inheritdoc cref="object.GetHashCode()" />
     public override int GetHashCode()
     {
         return _value.GetHashCode();
     }
 
+    /// <inheritdoc cref="IParsable{TSelf}.Parse(string, IFormatProvider?)" />
     public static FastDecimal64<T> Parse(string s, IFormatProvider? provider)
     {
         return (FastDecimal64<T>) decimal.Parse(s, provider);
     }
 
+    /// <inheritdoc cref="ISpanParsable{TSelf}.Parse(ReadOnlySpan&lt;char&gt;, IFormatProvider?)" />
+    public static FastDecimal64<T> Parse(ReadOnlySpan<char> s, IFormatProvider? provider)
+    {
+        return (FastDecimal64<T>) decimal.Parse(s, provider);
+    }
+
+    /// <inheritdoc cref="INumberBase{TSelf}.Parse(string, NumberStyles, IFormatProvider?)" />
+    public static FastDecimal64<T> Parse(string s, NumberStyles style, IFormatProvider? provider)
+    {
+        var dec = decimal.Parse(s, style, provider);
+        if (TryCastDecimal(dec, out var o))
+            return o;
+        
+        throw new OverflowException();
+    }
+
+    /// <inheritdoc cref="INumberBase{TSelf}.Parse(ReadOnlySpan&lt;char&gt;, NumberStyles, IFormatProvider?)" />
+    public static FastDecimal64<T> Parse(ReadOnlySpan<char> s, NumberStyles style, IFormatProvider? provider)
+    {
+        var dec = decimal.Parse(s, style, provider);
+        if (TryCastDecimal(dec, out var o))
+            return o;
+        
+        throw new OverflowException();
+    }
+
+    /// <inheritdoc cref="IParsable{TSelf}.TryParse(string?, IFormatProvider?, out TSelf)" />
     public static bool TryParse(string? s, IFormatProvider? provider, out FastDecimal64<T> result)
     {
         if(decimal.TryParse(s, provider, out var dec) && TryCastDecimal(dec, out result))
@@ -384,11 +501,7 @@ public readonly struct FastDecimal64<T> :
         return false;
     }
 
-    public static FastDecimal64<T> Parse(ReadOnlySpan<char> s, IFormatProvider? provider)
-    {
-        return (FastDecimal64<T>) decimal.Parse(s, provider);
-    }
-
+    /// <inheritdoc cref="ISpanParsable{TSelf}.TryParse(ReadOnlySpan&lt;char&gt;, IFormatProvider?, out TSelf)" />
     public static bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, out FastDecimal64<T> result)
     {
         if (decimal.TryParse(s, provider, out var dec) && TryCastDecimal(dec, out result))
@@ -398,146 +511,16 @@ public readonly struct FastDecimal64<T> :
         result = default;
         return false;
     }
-
-    public static FastDecimal64<T> operator -(FastDecimal64<T> value)
+    
+    /// <inheritdoc cref="INumberBase{TSelf}.TryParse(string?, NumberStyles, IFormatProvider?, out TSelf)" />
+    public static bool TryParse(string? s, NumberStyles style, IFormatProvider? provider, out FastDecimal64<T> result)
     {
-        return new FastDecimal64<T>(-value._value);
-    }
-
-    public static FastDecimal64<T> operator checked -(FastDecimal64<T> value)
-    {
-        return new FastDecimal64<T>(checked(-value._value));
-    }
-
-    public static FastDecimal64<T> Abs(FastDecimal64<T> value)
-    {
-        return new FastDecimal64<T>(long.Abs(value._value));
-    }
-
-    static bool INumberBase<FastDecimal64<T>>.IsCanonical(FastDecimal64<T> value) => true;
-
-    static bool INumberBase<FastDecimal64<T>>.IsComplexNumber(FastDecimal64<T> value) => false;
-
-    public static bool IsEvenInteger(FastDecimal64<T> value)
-    {
-        return value._value % (2 * (long) GetDivisor()) == 0;
-    }
-
-    static bool INumberBase<FastDecimal64<T>>.IsFinite(FastDecimal64<T> value) => true;
-
-    static bool INumberBase<FastDecimal64<T>>.IsImaginaryNumber(FastDecimal64<T> value) => false;
-
-    static bool INumberBase<FastDecimal64<T>>.IsInfinity(FastDecimal64<T> value) => false;
-
-    public static bool IsInteger(FastDecimal64<T> value)
-    {
-        var divisor = GetDivisor();
-        return value._value % (long) divisor == 0;
-    }
-
-    static bool INumberBase<FastDecimal64<T>>.IsNaN(FastDecimal64<T> value) => false;
-
-    public static bool IsNegative(FastDecimal64<T> value) => long.IsNegative(value._value);
-
-    static bool INumberBase<FastDecimal64<T>>.IsNegativeInfinity(FastDecimal64<T> value) => false;
-
-    public static bool IsNormal(FastDecimal64<T> value)
-    {
-        return value._value != 0;
-    }
-
-    public static bool IsOddInteger(FastDecimal64<T> value)
-    {
-        var (q, r) = Math.DivRem(value._value, (long) GetDivisor());
-        return r == 0 && (q & 1) != 0;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static ulong GetDivisor() => Fast128BitDiv.GetDivisorLow(GetFractionalDigits());
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static int GetFractionalDigits() => new T().FractionalDigits;
-
-    public static bool IsPositive(FastDecimal64<T> value) => long.IsPositive(value._value);
-
-    static bool INumberBase<FastDecimal64<T>>.IsPositiveInfinity(FastDecimal64<T> value) => false;
-
-    static bool INumberBase<FastDecimal64<T>>.IsRealNumber(FastDecimal64<T> value) => true;
-
-    static bool INumberBase<FastDecimal64<T>>.IsSubnormal(FastDecimal64<T> value) => false;
-
-    public static bool IsZero(FastDecimal64<T> value) => value._value == 0;
-
-    public static FastDecimal64<T> MaxMagnitude(FastDecimal64<T> x, FastDecimal64<T> y)
-    {
-        return new FastDecimal64<T>(long.MaxMagnitude(x._value, y._value));
-    }
-
-    static FastDecimal64<T> INumberBase<FastDecimal64<T>>.MaxMagnitudeNumber(FastDecimal64<T> x, FastDecimal64<T> y) 
-        => MaxMagnitude(x, y);
-
-    public static FastDecimal64<T> MinMagnitude(FastDecimal64<T> x, FastDecimal64<T> y)
-    {
-        return new FastDecimal64<T>(long.MinMagnitude(x._value, y._value));
-    }
-
-    static FastDecimal64<T> INumberBase<FastDecimal64<T>>.MinMagnitudeNumber(FastDecimal64<T> x, FastDecimal64<T> y) 
-        => MinMagnitude(x, y);
-
-    public static FastDecimal64<T> Parse(ReadOnlySpan<char> s, NumberStyles style, IFormatProvider? provider)
-    {
-        var dec = decimal.Parse(s, style, provider);
-        if (TryCastDecimal(dec, out var o))
-            return o;
+        result = default;
+        return (decimal.TryParse(s, style, provider, out var dec) && TryCastDecimal(dec, out result)) ;
         
-        throw new OverflowException();
     }
-
-    public static FastDecimal64<T> Parse(string s, NumberStyles style, IFormatProvider? provider)
-    {
-        var dec = decimal.Parse(s, style, provider);
-        if (TryCastDecimal(dec, out var o))
-            return o;
-        
-        throw new OverflowException();
-    }
-
-    public static bool TryConvertFromChecked<TOther>(TOther value, out FastDecimal64<T> result) where TOther : INumberBase<TOther>
-    {
-        result = default;
-        return false;
-    }
-
-    public static bool TryConvertFromSaturating<TOther>(TOther value, out FastDecimal64<T> result) where TOther : INumberBase<TOther>
-    {
-        result = default;
-        return false;
-    }
-
-    public static bool TryConvertFromTruncating<TOther>(TOther value, out FastDecimal64<T> result) where TOther : INumberBase<TOther>
-    {
-        result = default;
-        return false;
-    }
-
-    public static bool TryConvertToChecked<TOther>(FastDecimal64<T> value, out TOther? result) where TOther : INumberBase<TOther>
-    {
-        result = default;
-        return false;
-    }
-
-    public static bool TryConvertToSaturating<TOther>(FastDecimal64<T> value, out TOther? result) where TOther : INumberBase<TOther>
-    {
-        result = default;
-        return false;
-    }
-
-    public static bool TryConvertToTruncating<TOther>(FastDecimal64<T> value, out TOther? result) where TOther : INumberBase<TOther>
-    {
-        result = default;
-        return false;
-    }
-
+    
+    /// <inheritdoc cref="INumberBase{TSelf}.TryParse(ReadOnlySpan&lt;char&gt;, NumberStyles, IFormatProvider?, out TSelf)" />
     public static bool TryParse(ReadOnlySpan<char> s, NumberStyles style, IFormatProvider? provider, out FastDecimal64<T> result)
     {
         var success = decimal.TryParse(s, style, provider, out var dec);
@@ -545,11 +528,137 @@ public readonly struct FastDecimal64<T> :
         return success;
     }
 
-    public static bool TryParse(string? s, NumberStyles style, IFormatProvider? provider, out FastDecimal64<T> result)
+    /// <inheritdoc cref="INumberBase{TSelf}.Abs(TSelf)" />
+    public static FastDecimal64<T> Abs(FastDecimal64<T> value)
+    {
+        return new FastDecimal64<T>(long.Abs(value._value));
+    }
+
+    /// <inheritdoc cref="INumberBase{TSelf}.IsCanonical(TSelf)" />
+    static bool INumberBase<FastDecimal64<T>>.IsCanonical(FastDecimal64<T> value) => true;
+
+    /// <inheritdoc cref="INumberBase{TSelf}.IsComplexNumber(TSelf)" />
+    static bool INumberBase<FastDecimal64<T>>.IsComplexNumber(FastDecimal64<T> value) => false;
+
+    /// <inheritdoc cref="INumberBase{TSelf}.IsEvenInteger(TSelf)" />
+    public static bool IsEvenInteger(FastDecimal64<T> value)
+    {
+        return value._value % (2 * (long) GetDivisor()) == 0;
+    }
+
+    /// <inheritdoc cref="INumberBase{TSelf}.IsFinite(TSelf)" />
+    static bool INumberBase<FastDecimal64<T>>.IsFinite(FastDecimal64<T> value) => true;
+
+    /// <inheritdoc cref="INumberBase{TSelf}.IsImaginaryNumber(TSelf)" />
+    static bool INumberBase<FastDecimal64<T>>.IsImaginaryNumber(FastDecimal64<T> value) => false;
+
+    /// <inheritdoc cref="INumberBase{TSelf}.IsInfinity(TSelf)" />
+    static bool INumberBase<FastDecimal64<T>>.IsInfinity(FastDecimal64<T> value) => false;
+
+    /// <inheritdoc cref="INumberBase{TSelf}.IsInteger(TSelf)" />
+    public static bool IsInteger(FastDecimal64<T> value)
+    {
+        var divisor = GetDivisor();
+        return value._value % (long) divisor == 0;
+    }
+
+    /// <inheritdoc cref="INumberBase{TSelf}.IsNaN(TSelf)" />
+    static bool INumberBase<FastDecimal64<T>>.IsNaN(FastDecimal64<T> value) => false;
+
+    /// <inheritdoc cref="INumberBase{TSelf}.IsNegative(TSelf)" />
+    public static bool IsNegative(FastDecimal64<T> value) => long.IsNegative(value._value);
+
+    /// <inheritdoc cref="INumberBase{TSelf}.IsNegativeInfinity(TSelf)" />
+    static bool INumberBase<FastDecimal64<T>>.IsNegativeInfinity(FastDecimal64<T> value) => false;
+
+    /// <inheritdoc cref="INumberBase{TSelf}.IsNormal(TSelf)" />
+    public static bool IsNormal(FastDecimal64<T> value)
+    {
+        return value._value != 0;
+    }
+
+    /// <inheritdoc cref="INumberBase{TSelf}.IsOddInteger(TSelf)" />
+    public static bool IsOddInteger(FastDecimal64<T> value)
+    {
+        var (q, r) = Math.DivRem(value._value, (long) GetDivisor());
+        return r == 0 && (q & 1) != 0;
+    }
+
+    /// <inheritdoc cref="INumberBase{TSelf}.IsPositive(TSelf)" />
+    public static bool IsPositive(FastDecimal64<T> value) => long.IsPositive(value._value);
+
+    /// <inheritdoc cref="INumberBase{TSelf}.IsPositiveInfinity(TSelf)" />
+    static bool INumberBase<FastDecimal64<T>>.IsPositiveInfinity(FastDecimal64<T> value) => false;
+
+    /// <inheritdoc cref="INumberBase{TSelf}.IsRealNumber(TSelf)" />
+    static bool INumberBase<FastDecimal64<T>>.IsRealNumber(FastDecimal64<T> value) => true;
+
+    /// <inheritdoc cref="INumberBase{TSelf}.IsSubnormal(TSelf)" />
+    static bool INumberBase<FastDecimal64<T>>.IsSubnormal(FastDecimal64<T> value) => false;
+
+    /// <inheritdoc cref="INumberBase{TSelf}.IsZero(TSelf)" />
+    public static bool IsZero(FastDecimal64<T> value) => value._value == 0;
+
+    /// <inheritdoc cref="INumberBase{TSelf}.MaxMagnitude(TSelf, TSelf)" />
+    public static FastDecimal64<T> MaxMagnitude(FastDecimal64<T> x, FastDecimal64<T> y)
+    {
+        return new FastDecimal64<T>(long.MaxMagnitude(x._value, y._value));
+    }
+
+    /// <inheritdoc cref="INumberBase{TSelf}.MaxMagnitudeNumber(TSelf, TSelf)" />
+    static FastDecimal64<T> INumberBase<FastDecimal64<T>>.MaxMagnitudeNumber(FastDecimal64<T> x, FastDecimal64<T> y) 
+        => MaxMagnitude(x, y);
+
+    /// <inheritdoc cref="INumberBase{TSelf}.MinMagnitude(TSelf, TSelf)" />
+    public static FastDecimal64<T> MinMagnitude(FastDecimal64<T> x, FastDecimal64<T> y)
+    {
+        return new FastDecimal64<T>(long.MinMagnitude(x._value, y._value));
+    }
+
+    /// <inheritdoc cref="INumberBase{TSelf}.MinMagnitudeNumber(TSelf, TSelf)" />
+    static FastDecimal64<T> INumberBase<FastDecimal64<T>>.MinMagnitudeNumber(FastDecimal64<T> x, FastDecimal64<T> y) 
+        => MinMagnitude(x, y);
+
+    /// <inheritdoc cref="INumberBase{TSelf}.TryConvertFromChecked{TOther}(TOther, out TSelf)" />
+    public static bool TryConvertFromChecked<TOther>(TOther value, out FastDecimal64<T> result) where TOther : INumberBase<TOther>
     {
         result = default;
-        return (decimal.TryParse(s, style, provider, out var dec) && TryCastDecimal(dec, out result)) ;
-        
+        return false;
+    }
+    
+    /// <inheritdoc cref="INumberBase{TSelf}.TryConvertFromSaturating{TOther}(TOther, out TSelf)" />
+    public static bool TryConvertFromSaturating<TOther>(TOther value, out FastDecimal64<T> result) where TOther : INumberBase<TOther>
+    {
+        result = default;
+        return false;
+    }
+    
+    /// <inheritdoc cref="INumberBase{TSelf}.TryConvertFromTruncating{TOther}(TOther, out TSelf)" />
+    public static bool TryConvertFromTruncating<TOther>(TOther value, out FastDecimal64<T> result) where TOther : INumberBase<TOther>
+    {
+        result = default;
+        return false;
+    }
+
+    /// <inheritdoc cref="INumberBase{TSelf}.TryConvertToChecked{TOther}(TSelf, out TOther?)" />
+    public static bool TryConvertToChecked<TOther>(FastDecimal64<T> value, out TOther? result) where TOther : INumberBase<TOther>
+    {
+        result = default;
+        return false;
+    }
+
+    /// <inheritdoc cref="INumberBase{TSelf}.TryConvertToSaturating{TOther}(TSelf, out TOther?)" />
+    public static bool TryConvertToSaturating<TOther>(FastDecimal64<T> value, out TOther? result) where TOther : INumberBase<TOther>
+    {
+        result = default;
+        return false;
+    }
+
+    /// <inheritdoc cref="INumberBase{TSelf}.TryConvertToTruncating{TOther}(TSelf, out TOther?)" />
+    public static bool TryConvertToTruncating<TOther>(FastDecimal64<T> value, out TOther? result) where TOther : INumberBase<TOther>
+    {
+        result = default;
+        return false;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -571,6 +680,9 @@ public readonly struct FastDecimal64<T> :
         return false;
     }
 
+    /// <summary>Explicitly converts a <see cref="decimal" /> to a <see cref="FastDecimal64{T}" /> value.</summary>
+    /// <param name="value">The value to convert.</param>
+    /// <returns><paramref name="value" /> converted to a <see cref="FastDecimal64{T}" />.</returns>
     public static explicit operator FastDecimal64<T>(decimal value)
     {
         var dec = Unsafe.As<decimal, DecimalStruct>(ref value);
@@ -593,6 +705,10 @@ public readonly struct FastDecimal64<T> :
         return new FastDecimal64<T>(dec.Negative ? -(long) q.Lower : (long) q.Lower);
     }
 
+    /// <summary>Explicitly converts a <see cref="decimal" /> to a <see cref="FastDecimal64{T}" /> value, throwing an overflow exception for any values that fall outside the representable range.</summary>
+    /// <param name="value">The value to convert.</param>
+    /// <returns><paramref name="value" /> converted to a <see cref="FastDecimal64{T}" />.</returns>
+    /// <exception cref="OverflowException"><paramref name="value" /> is not representable by <see cref="FastDecimal64{T}" />.</exception>
     public static explicit operator checked FastDecimal64<T>(decimal value)
     {
         if (TryCastDecimal(value, out var fd))
@@ -603,6 +719,10 @@ public readonly struct FastDecimal64<T> :
         throw new OverflowException();
     }
 
+    /// <summary>Tries to cast a <see cref="decimal" /> to a <see cref="FastDecimal64{T}" /> value.</summary>
+    /// <param name="value">The value to convert.</param>
+    /// <param name="fd"><paramref name="value" /> converted to a <see cref="FastDecimal64{T}" /> if <paramref name="value" /> is representable by <see cref="FastDecimal64{T}" />; otherwise, the default value.</param>
+    /// <returns>true if <paramref name="value" /> is representable by <see cref="FastDecimal64{T}" />; otherwise, false.</returns>
     public static bool TryCastDecimal(decimal value, out FastDecimal64<T> fd)
     {
         var dec = Unsafe.As<decimal, DecimalStruct>(ref value);
@@ -642,9 +762,21 @@ public readonly struct FastDecimal64<T> :
         return false;
     }
 
+    /// <inheritdoc cref="INumberBase{TSelf}.One" />
     public static FastDecimal64<T> One => new((long) GetDivisor());
+    
+    /// <inheritdoc cref="ISignedNumber{TSelf}.NegativeOne" />
     public static FastDecimal64<T> NegativeOne => -One;
+    
+    /// <inheritdoc cref="INumberBase{TSelf}.Radix" />
     static int INumberBase<FastDecimal64<T>>.Radix => 10;
 
+    /// <inheritdoc cref="INumberBase{TSelf}.Zero" />
     public static FastDecimal64<T> Zero => new FastDecimal64<T>(0);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static ulong GetDivisor() => Fast128BitDiv.GetDivisorLow(GetFractionalDigits());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int GetFractionalDigits() => new T().FractionalDigits;
 }

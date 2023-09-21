@@ -17,29 +17,29 @@ public static class Rounding
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static uint Round64(ulong q, ulong remainder, ulong divisor, bool negative, MidpointRounding rounding)
+    public static uint Round64(ulong q, ulong remainder, ulong divisor, bool negative, MidpointRounding mode)
     {
-        var roundUp = rounding switch
+        var roundUp = mode switch
         {
             MidpointRounding.ToEven => (remainder << 1) + (q % 2) > divisor,
             MidpointRounding.AwayFromZero => (remainder << 1) >= divisor,
             MidpointRounding.ToNegativeInfinity => negative && remainder > 0,
             MidpointRounding.ToPositiveInfinity => !negative && remainder > 0,
-            _ => false
+            _ => throw new ArgumentException($"The value '{mode}' is not valid for this usage of the type {nameof(MidpointRounding)}.", nameof(mode))
         };
 
         return (roundUp ? 1u : 0u);
     }
 
-    private static uint Round128(ulong q, UInt128 remainder, UInt128 divisor, bool negative, MidpointRounding rounding)
+    private static uint Round128(ulong q, UInt128 remainder, UInt128 divisor, bool negative, MidpointRounding mode)
     {
-        var roundUp = rounding switch
+        var roundUp = mode switch
         {
             MidpointRounding.ToEven => (remainder << 1) + new UInt128(0,q % 2) > divisor,
             MidpointRounding.AwayFromZero => (remainder << 1) >= divisor,
             MidpointRounding.ToNegativeInfinity => negative && remainder > new UInt128(0,0),
             MidpointRounding.ToPositiveInfinity => !negative && remainder > new UInt128(0,0),
-            _ => false
+            _ => throw new ArgumentException($"The value '{mode}' is not valid for this usage of the type {nameof(MidpointRounding)}.", nameof(mode))
         };
 
         return (roundUp ? 1u : 0u);

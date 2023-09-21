@@ -2,7 +2,7 @@
     <PropertyGroup>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <EnablePreviewFeatures>True</EnablePreviewFeatures>
+        <EnablePreviewFeatures>true</EnablePreviewFeatures>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>11</LangVersion>
         
