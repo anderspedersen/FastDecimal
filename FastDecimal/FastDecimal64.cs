@@ -154,6 +154,23 @@ public readonly struct FastDecimal64<T> :
     // Explicit Conversions From FastDecimal64
     //
 
+    /// <summary>Explicitly converts a <see cref="FastDecimal64{T}" /> to a <see cref="FastDecimal32{T}" /> value.</summary>
+    /// <param name="value">The value to convert.</param>
+    /// <returns><paramref name="value" /> converted to a <see cref="FastDecimal32{T}" />.</returns>
+    public static explicit operator FastDecimal32<T>(FastDecimal64<T> value)
+    {
+        return new FastDecimal32<T>((int) value._value);
+    }
+
+    /// <summary>Explicitly converts a <see cref="FastDecimal64{T}" /> to a <see cref="FastDecimal32{T}" /> value.</summary>
+    /// <param name="value">The value to convert.</param>
+    /// <returns><paramref name="value" /> converted to a <see cref="FastDecimal32{T}" />.</returns>
+    /// <exception cref="OverflowException"><paramref name="value" /> is not representable by <see cref="FastDecimal32{T}" />.</exception>
+    public static explicit operator checked FastDecimal32<T>(FastDecimal64<T> value)
+    {
+        return new FastDecimal32<T>(checked((int) value._value));
+    }
+
     /// <summary>Explicitly converts a <see cref="FastDecimal64{T}" /> to a <see cref="decimal" /> value.</summary>
     /// <param name="value">The value to convert.</param>
     /// <returns><paramref name="value" /> converted to a <see cref="decimal" />.</returns>
@@ -197,16 +214,16 @@ public readonly struct FastDecimal64<T> :
 
         if (scale == fractionalDigits)
         {
-            return new FastDecimal64<T>(dec.Negative ? -(long) dec.Low : (long) dec.Low);
+            return new FastDecimal64<T>(dec.Negative ? -(long) dec.Low64 : (long) dec.Low64);
         } 
         
         if (scale < fractionalDigits)
         {
-            var high = Math.BigMul(dec.Low, Fast128BitDiv.GetDivisorLow(fractionalDigits - scale), out var low);
+            var high = Math.BigMul(dec.Low64, Fast128BitDiv.GetDivisorLow(fractionalDigits - scale), out var low);
             return new FastDecimal64<T>(dec.Negative ? -(long) low : (long) low);
         }
         
-        var (q,r) = Fast128BitDiv.DecDivRem128By128(dec.High, dec.Low, scale - fractionalDigits);
+        var (q,r) = Fast128BitDiv.DecDivRem128By128(dec.High32, dec.Low64, scale - fractionalDigits);
         q += new UInt128(0,Rounding.RoundDec(q.Lower, r, scale - fractionalDigits, dec.Negative, MidpointRounding.ToEven));
         return new FastDecimal64<T>(dec.Negative ? -(long) q.Lower : (long) q.Lower);
     }
@@ -413,7 +430,7 @@ public readonly struct FastDecimal64<T> :
     public static FastDecimal64<T> operator checked ++(FastDecimal64<T> value)
     {
         var div = GetDivisor();
-        return new FastDecimal64<T>(checked(value._value + (long) div));
+        return new FastDecimal64<T>(checked(value._value + unchecked((long) div)));
     }
 
     //
@@ -753,15 +770,15 @@ public readonly struct FastDecimal64<T> :
 
         if (scale == fractionalDigits)
         {
-            if (dec.High == 0 && TryCast(dec.Low, dec.Negative, out var signed))
+            if (dec.High32 == 0 && TryCast(dec.Low64, dec.Negative, out var signed))
             {
                 fd = new FastDecimal64<T>(signed);
                 return true;
             }
         } 
-        else if (scale < fractionalDigits && dec.High == 0)
+        else if (scale < fractionalDigits && dec.High32 == 0)
         {
-            var high = Math.BigMul(dec.Low, Fast128BitDiv.GetDivisorLow(fractionalDigits - scale), out var low);
+            var high = Math.BigMul(dec.Low64, Fast128BitDiv.GetDivisorLow(fractionalDigits - scale), out var low);
             if (high == 0 && TryCast(low, dec.Negative, out var signed))
             {
                 fd = new FastDecimal64<T>(signed);
@@ -770,7 +787,7 @@ public readonly struct FastDecimal64<T> :
         } 
         else if (scale > fractionalDigits)
         {
-            var (q,r) = Fast128BitDiv.DecDivRem128By128(dec.High, dec.Low, scale - fractionalDigits);
+            var (q,r) = Fast128BitDiv.DecDivRem128By128(dec.High32, dec.Low64, scale - fractionalDigits);
             q += new UInt128(0,Rounding.RoundDec(q.Lower, r, scale - fractionalDigits, dec.Negative, MidpointRounding.ToEven));
 
             if (q.Upper == 0 && TryCast(q.Lower, dec.Negative, out var signed))

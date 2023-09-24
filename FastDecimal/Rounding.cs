@@ -25,6 +25,7 @@ public static class Rounding
             MidpointRounding.AwayFromZero => (remainder << 1) >= divisor,
             MidpointRounding.ToNegativeInfinity => negative && remainder > 0,
             MidpointRounding.ToPositiveInfinity => !negative && remainder > 0,
+            MidpointRounding.ToZero => false,
             _ => throw new ArgumentException($"The value '{mode}' is not valid for this usage of the type {nameof(MidpointRounding)}.", nameof(mode))
         };
 
@@ -39,6 +40,7 @@ public static class Rounding
             MidpointRounding.AwayFromZero => (remainder << 1) >= divisor,
             MidpointRounding.ToNegativeInfinity => negative && remainder > new UInt128(0,0),
             MidpointRounding.ToPositiveInfinity => !negative && remainder > new UInt128(0,0),
+            MidpointRounding.ToZero => false,
             _ => throw new ArgumentException($"The value '{mode}' is not valid for this usage of the type {nameof(MidpointRounding)}.", nameof(mode))
         };
 
