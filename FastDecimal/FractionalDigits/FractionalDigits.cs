@@ -1,5 +1,10 @@
 ﻿namespace FastDecimal.FractionalDigits;
 
+public struct ZeroFractionalDigit : IFractionalDigits
+{
+    public int FractionalDigits => 0;
+}
+
 public struct OneFractionalDigit : IFractionalDigits
 {
     public int FractionalDigits => 1;
