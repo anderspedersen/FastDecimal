@@ -16,6 +16,14 @@ public readonly struct FastDecimal64<T> :
 {
     private readonly long _value;
 
+    /// <summary>Initializes a new instance o new instance of the <see cref="FastDecimal64{T}" /> struct using the supplied <see cref="decimal" /> value.</summary>
+    /// <param name="value">The <see cref="decimal" /> to store as a <see cref="FastDecimal64{T}" /> struct.</param>
+    /// <exception cref="OverflowException"><paramref name="value" /> is not representable by <see cref="FastDecimal64{T}" />.</exception>
+    internal FastDecimal64(decimal value)
+    {
+        this = checked((FastDecimal64<T>) value);
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal FastDecimal64(long value)
     {
