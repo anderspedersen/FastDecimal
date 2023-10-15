@@ -11,5 +11,12 @@
         <Authors>Anders Pedersen</Authors>
         <Description>A fast fixed-point decimal type with strongly typed, configurable precision for .NET.</Description>
         <TargetFrameworks>net8.0;net7.0</TargetFrameworks>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageProjectUrl>https://github.com/anderspedersen/FastDecimal</PackageProjectUrl>
     </PropertyGroup>
+    <ItemGroup>
+        <None Include="..\LICENSE" Pack="true" PackagePath="LICENSE" />
+        <None Include="..\README.md" Pack="true" PackagePath="README.md" />
+    </ItemGroup>
 </Project>
