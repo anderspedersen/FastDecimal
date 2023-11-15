@@ -12,6 +12,7 @@ Addition and subtraction is very fast for fixed-point decimals. It basically is 
 |        FastDecimalAddition | 0.0102 ns | 0.0071 ns | 0.0067 ns |
 | FastDecimalCheckedAddition | 0.0000 ns | 0.0000 ns | 0.0000 ns |
 |            DecimalAddition | 5.6585 ns | 0.0340 ns | 0.0318 ns |
+
 As expected addition is extremely fast for FastDecimal.
 
 |                        Method |      Mean |     Error |    StdDev |
@@ -19,6 +20,7 @@ As expected addition is extremely fast for FastDecimal.
 |        FastDecimalSubtraction | 0.0070 ns | 0.0147 ns | 0.0123 ns |
 | FastDecimalCheckedSubtraction | 0.0016 ns | 0.0029 ns | 0.0026 ns |
 |            DecimalSubtraction | 5.6538 ns | 0.0579 ns | 0.0541 ns |
+
 And same for subtraction.
 
 
@@ -31,6 +33,7 @@ In theory, floating-point decimals should have an advantage over fixed-point dec
 |          FastDecimalMultiplicationSmall |  2.408 ns | 0.0194 ns | 0.0181 ns |
 |   FastDecimalCheckedMultiplicationSmall |  2.406 ns | 0.0095 ns | 0.0084 ns |
 |              DecimalMultiplicationSmall |  5.501 ns | 0.0186 ns | 0.0174 ns |
+
 First multiplication benchmark is with small values, where intermediate result fits in 64-bit, so `FastDecimal64` will do 64-bit division.
 
 |                                  Method |      Mean |     Error |    StdDev |
@@ -38,6 +41,7 @@ First multiplication benchmark is with small values, where intermediate result f
 |            FastDecimalMultiplicationBig |  9.065 ns | 0.0368 ns | 0.0326 ns |
 |     FastDecimalCheckedMultiplicationBig |  9.190 ns | 0.0504 ns | 0.0447 ns |
 |                DecimalMultiplicationBig |  9.429 ns | 0.0419 ns | 0.0350 ns |
+
 Second multiplication benchmark is with larger values, where intermediate result fits in 96-bit, so `FastDecimal64` will do 128-bit division.
 
 
@@ -46,6 +50,7 @@ Second multiplication benchmark is with larger values, where intermediate result
 |        FastDecimalMultiplicationVeryBig |  8.730 ns | 0.0476 ns | 0.0446 ns |
 | FastDecimalCheckedMultiplicationVeryBig |  9.264 ns | 0.0939 ns | 0.0832 ns |
 |            DecimalMultiplicationVeryBig | 21.025 ns | 0.1964 ns | 0.1741 ns |
+
 Last multiplication benchmark is with even larger values, where intermediate result fits in 128-bit, so `FastDecimal64` will do 128-bit division, but `decimal` will also have to do division to fit the value.
 
 ## Division
@@ -57,6 +62,7 @@ For the division benchmark, I have made sure that the results do not have more f
 |  FastDecimalCheckedDivision64BitIntermediateResult |  6.550 ns | 0.0331 ns | 0.0310 ns |
 |        FastDecimalDivision128BitIntermediateResult | 22.422 ns | 0.0560 ns | 0.0524 ns |
 | FastDecimalCheckedDivision128BitIntermediateResult | 23.732 ns | 0.0609 ns | 0.0569 ns |
+
 The two interesting cases for `FastDecimal` division is whether the intermediate result can fit in 64 bits, or if 128 bits are needed. Notice that both cases are faster than the `decimal` benchmarks.
 
 |                                             Method |      Mean |     Error |    StdDev |
@@ -64,4 +70,5 @@ The two interesting cases for `FastDecimal` division is whether the intermediate
 |                        DecimalDivision32BitBy32Bit | 31.966 ns | 0.1190 ns | 0.1055 ns |
 |                        DecimalDivision64BitBy32Bit | 29.052 ns | 0.2400 ns | 0.1874 ns |
 |                        DecimalDivision64BitBy64Bit | 49.006 ns | 0.3396 ns | 0.2836 ns |
+
 `decimal` can use a faster algorithm if the divisor is 32-bit.
