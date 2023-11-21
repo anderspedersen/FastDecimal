@@ -485,6 +485,45 @@ public readonly struct FastDecimal64<T> :
     {
         return MultiplyInternal(left, right, MidpointRounding.ToEven, isChecked: true);
     }
+    
+        
+    /// <summary>Multiplies two values together to compute their product.</summary>
+    /// <param name="left">The value which <paramref name="right" /> multiplies.</param>
+    /// <param name="right">The value which multiplies <paramref name="left" />.</param>
+    /// <returns>The product of <paramref name="left" /> multiplied-by <paramref name="right" />.</returns>
+    public static FastDecimal64<T> operator *(FastDecimal64<T> left, long right)
+    {
+        return new FastDecimal64<T>(left._value * right);
+    }
+    
+    /// <summary>Multiplies two values together to compute their product.</summary>
+    /// <param name="left">The value which <paramref name="right" /> multiplies.</param>
+    /// <param name="right">The value which multiplies <paramref name="left" />.</param>
+    /// <returns>The product of <paramref name="left" /> multiplied-by <paramref name="right" />.</returns>
+    /// <exception cref="OverflowException">The product of <paramref name="left" /> multiplied-by <paramref name="right" /> is not representable by <typeparamref name="TResult" />.</exception>
+    public static FastDecimal64<T> operator checked *(FastDecimal64<T> left, long right)
+    {
+        return new FastDecimal64<T>(checked(left._value * right));
+    }
+    
+    /// <summary>Multiplies two values together to compute their product.</summary>
+    /// <param name="left">The value which <paramref name="right" /> multiplies.</param>
+    /// <param name="right">The value which multiplies <paramref name="left" />.</param>
+    /// <returns>The product of <paramref name="left" /> multiplied-by <paramref name="right" />.</returns>
+    public static FastDecimal64<T> operator *(long left, FastDecimal64<T> right)
+    {
+        return new FastDecimal64<T>(left * right._value);
+    }
+    
+    /// <summary>Multiplies two values together to compute their product.</summary>
+    /// <param name="left">The value which <paramref name="right" /> multiplies.</param>
+    /// <param name="right">The value which multiplies <paramref name="left" />.</param>
+    /// <returns>The product of <paramref name="left" /> multiplied-by <paramref name="right" />.</returns>
+    /// <exception cref="OverflowException">The product of <paramref name="left" /> multiplied-by <paramref name="right" /> is not representable by <typeparamref name="TResult" />.</exception>
+    public static FastDecimal64<T> operator checked *(long left, FastDecimal64<T> right)
+    {
+        return new FastDecimal64<T>(checked(left * right._value));
+    }
 
     /// <summary>Multiplies two values together to compute their product.</summary>
     /// <param name="left">The value which <paramref name="right" /> multiplies.</param>

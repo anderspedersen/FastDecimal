@@ -6,7 +6,7 @@ using FastDecimal.FractionalDigits;
 
 namespace FastDecimal;
 
-/// <summary>Represents a 64-bit signed fixed-point decimal number.</summary>
+/// <summary>Represents a 32-bit signed fixed-point decimal number.</summary>
 public readonly struct FastDecimal32<T> : 
     INumber<FastDecimal32<T>>,
     ISignedNumber<FastDecimal32<T>>,
@@ -431,17 +431,53 @@ public readonly struct FastDecimal32<T> :
     //
 
     /// <inheritdoc cref="IMultiplyOperators{TSelf, TOther, TResult}.op_Multiply(TSelf, TOther)" />
-    [MethodImpl(MethodImplOptions.NoInlining)]
     public static FastDecimal32<T> operator *(FastDecimal32<T> left, FastDecimal32<T> right)
     {
         return MultiplyInternal(left, right, MidpointRounding.ToEven, isChecked: false);
     }
 
     /// <inheritdoc cref="IMultiplyOperators{TSelf, TOther, TResult}.op_CheckedMultiply(TSelf, TOther)" />
-    [MethodImpl(MethodImplOptions.NoInlining)]
     public static FastDecimal32<T> operator checked *(FastDecimal32<T> left, FastDecimal32<T> right)
     {
         return MultiplyInternal(left, right, MidpointRounding.ToEven, isChecked: true);
+    }
+    
+    /// <summary>Multiplies two values together to compute their product.</summary>
+    /// <param name="left">The value which <paramref name="right" /> multiplies.</param>
+    /// <param name="right">The value which multiplies <paramref name="left" />.</param>
+    /// <returns>The product of <paramref name="left" /> multiplied-by <paramref name="right" />.</returns>
+    public static FastDecimal32<T> operator *(FastDecimal32<T> left, int right)
+    {
+        return new FastDecimal32<T>(left._value * right);
+    }
+    
+    /// <summary>Multiplies two values together to compute their product.</summary>
+    /// <param name="left">The value which <paramref name="right" /> multiplies.</param>
+    /// <param name="right">The value which multiplies <paramref name="left" />.</param>
+    /// <returns>The product of <paramref name="left" /> multiplied-by <paramref name="right" />.</returns>
+    /// <exception cref="OverflowException">The product of <paramref name="left" /> multiplied-by <paramref name="right" /> is not representable by <typeparamref name="TResult" />.</exception>
+    public static FastDecimal32<T> operator checked *(FastDecimal32<T> left, int right)
+    {
+        return new FastDecimal32<T>(checked(left._value * right));
+    }
+    
+    /// <summary>Multiplies two values together to compute their product.</summary>
+    /// <param name="left">The value which <paramref name="right" /> multiplies.</param>
+    /// <param name="right">The value which multiplies <paramref name="left" />.</param>
+    /// <returns>The product of <paramref name="left" /> multiplied-by <paramref name="right" />.</returns>
+    public static FastDecimal32<T> operator *(int left, FastDecimal32<T> right)
+    {
+        return new FastDecimal32<T>(left * right._value);
+    }
+    
+    /// <summary>Multiplies two values together to compute their product.</summary>
+    /// <param name="left">The value which <paramref name="right" /> multiplies.</param>
+    /// <param name="right">The value which multiplies <paramref name="left" />.</param>
+    /// <returns>The product of <paramref name="left" /> multiplied-by <paramref name="right" />.</returns>
+    /// <exception cref="OverflowException">The product of <paramref name="left" /> multiplied-by <paramref name="right" /> is not representable by <typeparamref name="TResult" />.</exception>
+    public static FastDecimal32<T> operator checked *(int left, FastDecimal32<T> right)
+    {
+        return new FastDecimal32<T>(checked(left * right._value));
     }
 
     /// <summary>Multiplies two values together to compute their product.</summary>
@@ -450,7 +486,6 @@ public readonly struct FastDecimal32<T> :
     /// <param name="mode">One of the enumeration values that specifies which rounding strategy to use.</param>
     /// <returns>The product of <paramref name="left" /> multiplied-by <paramref name="right" />.</returns>
     /// <exception cref="ArgumentException"><paramref name="mode" /> is not a MidpointRounding value.</exception>
-    [MethodImpl(MethodImplOptions.NoInlining)]
     public static FastDecimal32<T> Multiply(FastDecimal32<T> left, FastDecimal32<T> right, MidpointRounding mode)
     {
         return MultiplyInternal(left, right, mode, false);
@@ -463,8 +498,6 @@ public readonly struct FastDecimal32<T> :
     /// <returns>The product of <paramref name="left" /> multiplied-by <paramref name="right" />.</returns>
     /// <exception cref="ArgumentException"><paramref name="mode" /> is not a MidpointRounding value.</exception>
     /// <exception cref="OverflowException">The product of <paramref name="left" /> multiplied-by <paramref name="right" /> is not representable by <seef cref="FastDecimal32{T}" />.</exception>
-
-    [MethodImpl(MethodImplOptions.NoInlining)]
     public static FastDecimal32<T> MultiplyChecked(FastDecimal32<T> left, FastDecimal32<T> right, MidpointRounding mode)
     {
         return MultiplyInternal(left, right, mode, true);
