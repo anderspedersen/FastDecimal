@@ -4,7 +4,6 @@
         <OutputType>Exe</OutputType>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <EnablePreviewFeatures>True</EnablePreviewFeatures>
         <RuntimeIdentifier>win-x64</RuntimeIdentifier>
         <TargetFrameworks>net8.0;net7.0</TargetFrameworks>
     </PropertyGroup>
