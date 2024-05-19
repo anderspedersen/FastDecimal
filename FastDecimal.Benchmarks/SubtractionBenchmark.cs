@@ -5,8 +5,6 @@ using FastDecimal.FractionalDigits;
 namespace FastDecimal.Benchmarks;
 
 [DisassemblyDiagnoser(maxDepth: 10)]
-[SimpleJob(RuntimeMoniker.Net80)]
-[SimpleJob(RuntimeMoniker.Net70)]
 public class SubtractionBenchmark
 {
     private readonly FastDecimal64<FourFractionalDigits> _fd1 = new FastDecimal64<FourFractionalDigits>(234_8945);

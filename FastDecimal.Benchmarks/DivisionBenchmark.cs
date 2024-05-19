@@ -1,12 +1,9 @@
 ﻿using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Jobs;
 using FastDecimal.FractionalDigits;
 
 namespace FastDecimal.Benchmarks;
 
 [DisassemblyDiagnoser(maxDepth: 10)]
-[SimpleJob(RuntimeMoniker.Net80)]
-[SimpleJob(RuntimeMoniker.Net70)]
 public class DivisionBenchmark
 {
     private readonly FastDecimal64<FourFractionalDigits> _fastDecimalSmallDividend = new (443_4242);
