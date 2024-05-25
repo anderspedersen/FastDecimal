@@ -5,92 +5,92 @@ public struct ZeroFractionalDigit : IFractionalDigits
     public int FractionalDigits => 0;
 }
 
-public struct OneFractionalDigit : IFractionalDigits
+public struct One : IFractionalDigits
 {
     public int FractionalDigits => 1;
 }
 
-public struct TwoFractionalDigits : IFractionalDigits
+internal struct Two : IFractionalDigits
 {
     public int FractionalDigits => 2;
 }
 
-public struct ThreeFractionalDigits : IFractionalDigits
+public struct Three : IFractionalDigits
 {
     public int FractionalDigits => 3;
 }
 
-public struct FourFractionalDigits : IFractionalDigits
+public struct Four : IFractionalDigits
 {
     public int FractionalDigits => 4;
 }
 
-public struct FiveFractionalDigits : IFractionalDigits
+public struct Five : IFractionalDigits
 {
     public int FractionalDigits => 5;
 }
 
-public struct SixFractionalDigits : IFractionalDigits
+public struct Six : IFractionalDigits
 {
     public int FractionalDigits => 6;
 }
 
-public struct SevenFractionalDigits : IFractionalDigits
+public struct Seven : IFractionalDigits
 {
     public int FractionalDigits => 7;
 }
 
-public struct EightFractionalDigits : IFractionalDigits
+public struct Eight : IFractionalDigits
 {
     public int FractionalDigits => 8;
 }
 
-public struct NineFractionalDigits : IFractionalDigits
+public struct Nine : IFractionalDigits
 {
     public int FractionalDigits => 9;
 }
 
-public struct TenFractionalDigits : IFractionalDigits
+public struct Ten : IFractionalDigits
 {
     public int FractionalDigits => 10;
 }
 
-public struct ElevenFractionalDigits : IFractionalDigits
+public struct Eleven : IFractionalDigits
 {
     public int FractionalDigits => 11;
 }
 
-public struct TwelveFractionalDigits : IFractionalDigits
+public struct Twelve : IFractionalDigits
 {
     public int FractionalDigits => 12;
 }
 
-public struct ThirteenFractionalDigits : IFractionalDigits
+public struct Thirteen : IFractionalDigits
 {
     public int FractionalDigits => 13;
 } 
 
-public struct FourteenFractionalDigits : IFractionalDigits
+public struct Fourteen : IFractionalDigits
 {
     public int FractionalDigits => 14;
 }
 
-public struct FifteenFractionalDigits : IFractionalDigits
+public struct Fifteen : IFractionalDigits
 {
     public int FractionalDigits => 15;
 }
 
-public struct SixteenFractionalDigits : IFractionalDigits
+public struct Sixteen : IFractionalDigits
 {
     public int FractionalDigits => 16;
 }
 
-public struct SeventeenFractionalDigits : IFractionalDigits
+public struct Seventeen : IFractionalDigits
 {
     public int FractionalDigits => 17;
 }
 
-public struct EighteenFractionalDigits : IFractionalDigits
+public struct Eighteen : IFractionalDigits
 {
     public int FractionalDigits => 18;
 }

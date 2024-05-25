@@ -11,12 +11,12 @@ public class DecimalCompare
         for (int i = 0; i < 100_000_000; i++)
         {
 
-            var fastDec = new FastDecimal64<FourFractionalDigits>(rand.NextInt64(long.MinValue, long.MaxValue));
+            var fastDec = new FastDecimal64<Four>(rand.NextInt64(long.MinValue, long.MaxValue));
             var dec = (decimal) fastDec;
 
             var rounding = (MidpointRounding) rand.Next(0, 4);
 
-            var roundedFastDec = fastDec.ChangePrecision<TwoFractionalDigits>(rounding);
+            var roundedFastDec = fastDec.ChangePrecision<Two>(rounding);
             var roundedDec = decimal.Round(dec, 2, rounding);
 
             Assert.Equal(roundedDec, (decimal) roundedFastDec);
@@ -31,14 +31,14 @@ public class DecimalCompare
         for (int i = 0; i < 100_000_000; i++)
         {
 
-            var fastDec1 = new FastDecimal64<FourFractionalDigits>(rand.NextInt64(long.MinValue, long.MaxValue)/100000000);
-            var fastDec2 = new FastDecimal64<FourFractionalDigits>(rand.NextInt64(long.MinValue, long.MaxValue)/100000000);
+            var fastDec1 = new FastDecimal64<Four>(rand.NextInt64(long.MinValue, long.MaxValue)/100000000);
+            var fastDec2 = new FastDecimal64<Four>(rand.NextInt64(long.MinValue, long.MaxValue)/100000000);
             var dec1 = (decimal) fastDec1;
             var dec2 = (decimal) fastDec2;
 
             var rounding = (MidpointRounding) rand.Next(0, 4);
 
-            var fastProduct = FastDecimal64<FourFractionalDigits>.Multiply(fastDec1,fastDec2, rounding);
+            var fastProduct = FastDecimal64<Four>.Multiply(fastDec1,fastDec2, rounding);
             var product = decimal.Round(dec1 * dec2, 4, rounding);
 
             Assert.Equal(product, (decimal) fastProduct);
@@ -52,12 +52,12 @@ public class DecimalCompare
         for (int i = 0; i < 100_000_000; i++)
         {
 
-            var fastDec1 = new FastDecimal64<FourFractionalDigits>(rand.NextInt64(long.MinValue/10000, long.MaxValue/10000));
-            FastDecimal64<FourFractionalDigits> fastDec2;
+            var fastDec1 = new FastDecimal64<Four>(rand.NextInt64(long.MinValue/10000, long.MaxValue/10000));
+            FastDecimal64<Four> fastDec2;
             do
             {
-                fastDec2 = new FastDecimal64<FourFractionalDigits>(rand.NextInt64(-10000, 10000));
-            } while (fastDec2 == new FastDecimal64<FourFractionalDigits>(0));
+                fastDec2 = new FastDecimal64<Four>(rand.NextInt64(-10000, 10000));
+            } while (fastDec2 == new FastDecimal64<Four>(0));
 
             var dec1 = (decimal) fastDec1;
             var dec2 = (decimal) fastDec2;
@@ -75,13 +75,13 @@ public class DecimalCompare
         for (int i = 0; i < 100_000_000; i++)
         {
 
-            var fastDec1 = new FastDecimal64<FourFractionalDigits>(rand.NextInt64(long.MinValue, long.MaxValue));
-            FastDecimal64<FourFractionalDigits> fastDec2;
+            var fastDec1 = new FastDecimal64<Four>(rand.NextInt64(long.MinValue, long.MaxValue));
+            FastDecimal64<Four> fastDec2;
             do
             {
-                fastDec2 = new FastDecimal64<FourFractionalDigits>(rand.NextInt64(-10000, 10000));
-            } while (fastDec2 < new FastDecimal64<FourFractionalDigits>(10000) &&
-                     fastDec2 > new FastDecimal64<FourFractionalDigits>(-10000));
+                fastDec2 = new FastDecimal64<Four>(rand.NextInt64(-10000, 10000));
+            } while (fastDec2 < new FastDecimal64<Four>(10000) &&
+                     fastDec2 > new FastDecimal64<Four>(-10000));
 
             var dec1 = (decimal) fastDec1;
             var dec2 = (decimal) fastDec2;

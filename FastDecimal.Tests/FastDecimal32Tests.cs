@@ -8,19 +8,19 @@ public class FastDecimal32Tests
     [Fact]
     public void ShouldAddTwoDecimals()
     {
-        var result = new FastDecimal32<FourFractionalDigits>(34_2945) +
-                     new FastDecimal32<FourFractionalDigits>(24534_2945);
+        var result = new FastDecimal32<Four>(34_2945) +
+                     new FastDecimal32<Four>(24534_2945);
         
-        Assert.Equal(new FastDecimal32<FourFractionalDigits>(24568_5890), result);
+        Assert.Equal(new FastDecimal32<Four>(24568_5890), result);
     }
 
     [Fact]
     public void ShouldOverflowInUncheckedEnvironmentWhenAddResultIsTooBig()
     {
-        var result = new FastDecimal32<FourFractionalDigits>(178957_3302) +
-                     new FastDecimal32<FourFractionalDigits>(144389_9843);
+        var result = new FastDecimal32<Four>(178957_3302) +
+                     new FastDecimal32<Four>(144389_9843);
         
-        Assert.Equal(new FastDecimal32<FourFractionalDigits>(-106149_4151), result);
+        Assert.Equal(new FastDecimal32<Four>(-106149_4151), result);
     }
     
 
@@ -28,34 +28,34 @@ public class FastDecimal32Tests
     public void ShouldThrowExceptionInCheckedEnvironmentWhenAddResultIsTooBig()
     {
         Assert.Throws<OverflowException>(() => 
-            checked(new FastDecimal32<FourFractionalDigits>(178957_3302) +
-                     new FastDecimal32<FourFractionalDigits>(144389_9843)));
+            checked(new FastDecimal32<Four>(178957_3302) +
+                     new FastDecimal32<Four>(144389_9843)));
     }
     
     [Fact]
     public void ShouldSubtractTwoDecimals()
     {
-        var result = new FastDecimal32<FourFractionalDigits>(34_2945) -
-                     new FastDecimal32<FourFractionalDigits>(24534_2945);
+        var result = new FastDecimal32<Four>(34_2945) -
+                     new FastDecimal32<Four>(24534_2945);
         
-        Assert.Equal(new FastDecimal32<FourFractionalDigits>(-24500_0000), result);
+        Assert.Equal(new FastDecimal32<Four>(-24500_0000), result);
     }
 
     [Fact]
     public void ShouldOverflowInUncheckedEnvironmentWhenSubtractResultIsTooBig()
     {
-        var result = new FastDecimal32<FourFractionalDigits>(-78957_3302) -
-                     new FastDecimal32<FourFractionalDigits>(144389_9843);
+        var result = new FastDecimal32<Four>(-78957_3302) -
+                     new FastDecimal32<Four>(144389_9843);
         
-        Assert.Equal(new FastDecimal32<FourFractionalDigits>(206149_4151), result);
+        Assert.Equal(new FastDecimal32<Four>(206149_4151), result);
     }
 
     [Fact]
     public void ShouldThrowExceptionInCheckedEnvironmentWhenSubtractResultIsTooBig()
     {
         Assert.Throws<OverflowException>(() => 
-            checked(new FastDecimal32<FourFractionalDigits>(-78957_3302) -
-                    new FastDecimal32<FourFractionalDigits>(144389_9843)));
+            checked(new FastDecimal32<Four>(-78957_3302) -
+                    new FastDecimal32<Four>(144389_9843)));
     }
 
     [Fact]
@@ -64,10 +64,10 @@ public class FastDecimal32Tests
         // To multiply fixed point decimals with four fractional digits, we calculate
         // (a*b)/1000. Point of this test is that the intermediate result (a*b) fits in
         // 32 bits
-        var result = new FastDecimal32<FourFractionalDigits>(3_4959) *
-                     new FastDecimal32<FourFractionalDigits>(3_4546);
+        var result = new FastDecimal32<Four>(3_4959) *
+                     new FastDecimal32<Four>(3_4546);
         
-        Assert.Equal(new FastDecimal32<FourFractionalDigits>(12_0769), result);
+        Assert.Equal(new FastDecimal32<Four>(12_0769), result);
     }
 
     [Fact]
@@ -77,27 +77,27 @@ public class FastDecimal32Tests
         // (a*b)/1000. Point of this test is that the intermediate result (a*b) does not
         // fit in 32 bits (but the final result does, after division, does)
         
-        var result = new FastDecimal32<FourFractionalDigits>(83_4959) *
-                     new FastDecimal32<FourFractionalDigits>(23_4546);
+        var result = new FastDecimal32<Four>(83_4959) *
+                     new FastDecimal32<Four>(23_4546);
         
-        Assert.Equal(new FastDecimal32<FourFractionalDigits>(1958_3629), result);
+        Assert.Equal(new FastDecimal32<Four>(1958_3629), result);
     }
     
     [Fact]
     public void ShouldOverflowInUncheckedEnvironmentWhenMultiplyResultIsLargerThan32Bit()
     {
-        var result = new FastDecimal32<FourFractionalDigits>(142984_4538) *
-                     new FastDecimal32<FourFractionalDigits>(154543_2198);
+        var result = new FastDecimal32<Four>(142984_4538) *
+                     new FastDecimal32<Four>(154543_2198);
         
-        Assert.Equal(new FastDecimal32<FourFractionalDigits>(100630_4059), result);
+        Assert.Equal(new FastDecimal32<Four>(100630_4059), result);
     }
     
     [Fact]
     public void ShouldThrowExceptionInCheckedEnvironmentWhenMultiplyResultIsLargerThan64Bit()
     {
         Assert.Throws<OverflowException>(() => 
-            checked(new FastDecimal32<FourFractionalDigits>(142984_4538) *
-                    new FastDecimal32<FourFractionalDigits>(154543_2198)));
+            checked(new FastDecimal32<Four>(142984_4538) *
+                    new FastDecimal32<Four>(154543_2198)));
     }
     
     [Theory]
@@ -127,12 +127,12 @@ public class FastDecimal32Tests
     [InlineData(MidpointRounding.ToPositiveInfinity, -3_0000, -0_0003)]
     public void ShouldRoundUsingTheMidpointRoundingParameter(MidpointRounding midpointRounding, int roundingNumber, int expectedNumber)
     {
-        var result = FastDecimal32<FourFractionalDigits>.Multiply(
-            new FastDecimal32<FourFractionalDigits>(roundingNumber),
-            new FastDecimal32<FourFractionalDigits>(0_0001),
+        var result = FastDecimal32<Four>.Multiply(
+            new FastDecimal32<Four>(roundingNumber),
+            new FastDecimal32<Four>(0_0001),
             midpointRounding);
         
-        Assert.Equal(new FastDecimal32<FourFractionalDigits>(expectedNumber), result);
+        Assert.Equal(new FastDecimal32<Four>(expectedNumber), result);
     }
     
     [Fact]
@@ -141,10 +141,10 @@ public class FastDecimal32Tests
         // To multiply fixed point decimals with four fractional digits, we calculate
         // (a*1000)/b. Point of this test is that the intermediate result a*1000 fits in
         // 32 bits
-        var result = new FastDecimal32<FourFractionalDigits>(4_7000) /
-                     new FastDecimal32<FourFractionalDigits>(2_0000);
+        var result = new FastDecimal32<Four>(4_7000) /
+                     new FastDecimal32<Four>(2_0000);
         
-        Assert.Equal(new FastDecimal32<FourFractionalDigits>(2_3500), result);
+        Assert.Equal(new FastDecimal32<Four>(2_3500), result);
     }
     
     
@@ -154,27 +154,27 @@ public class FastDecimal32Tests
         // To multiply fixed point decimals with four fractional digits, we calculate
         // (a*1000)/b. Point of this test is that the intermediate result a*1000 does not
         // fit in 32 bits (but the final result does, after division, does)
-        var result = new FastDecimal32<FourFractionalDigits>(47000_0000) /
-                     new FastDecimal32<FourFractionalDigits>(2_0000);
+        var result = new FastDecimal32<Four>(47000_0000) /
+                     new FastDecimal32<Four>(2_0000);
         
-        Assert.Equal(new FastDecimal32<FourFractionalDigits>(23500_0000), result);
+        Assert.Equal(new FastDecimal32<Four>(23500_0000), result);
     }
     
     [Fact]
     public void ShouldOverflowInUncheckedEnvironmentWhenDivideResultIsLargerThan32Bit()
     {
-        var result = new FastDecimal32<FourFractionalDigits>(47000_0000) /
-                     new FastDecimal32<FourFractionalDigits>(0_0001);
+        var result = new FastDecimal32<Four>(47000_0000) /
+                     new FastDecimal32<Four>(0_0001);
         
-        Assert.Equal(new FastDecimal32<FourFractionalDigits>(130577_8176), result);
+        Assert.Equal(new FastDecimal32<Four>(130577_8176), result);
     }
     
     [Fact]
     public void ShouldThrowExceptionInCheckedEnvironmentWhenDivideResultIsLargerThan64Bit()
     {
         Assert.Throws<OverflowException>(() => 
-            checked(new FastDecimal32<FourFractionalDigits>(47000_0000) /
-                    new FastDecimal32<FourFractionalDigits>(0_0001)));
+            checked(new FastDecimal32<Four>(47000_0000) /
+                    new FastDecimal32<Four>(0_0001)));
     }
     
     [Theory]
@@ -204,12 +204,12 @@ public class FastDecimal32Tests
     [InlineData(MidpointRounding.ToPositiveInfinity, -3_0000, -0_0003)]
     public void ShouldRoundUsingTheMidpointRoundingParameterWhenDividing(MidpointRounding midpointRounding, int roundingNumber, int expectedNumber)
     {
-        var result = FastDecimal32<FourFractionalDigits>.Divide(
-            new FastDecimal32<FourFractionalDigits>(roundingNumber),
-            new FastDecimal32<FourFractionalDigits>(10000_0000),
+        var result = FastDecimal32<Four>.Divide(
+            new FastDecimal32<Four>(roundingNumber),
+            new FastDecimal32<Four>(10000_0000),
             midpointRounding);
         
-        Assert.Equal(new FastDecimal32<FourFractionalDigits>(expectedNumber), result);
+        Assert.Equal(new FastDecimal32<Four>(expectedNumber), result);
     }
 
     [Theory]
@@ -219,23 +219,23 @@ public class FastDecimal32Tests
     [InlineData(-0_5875, 0_4125)]
     public void ShouldIncreaseValueByOneWhenUsingIncrementOperator(int beforeIncrease, int expectedAfterIncrease)
     {
-        var fd = new FastDecimal32<FourFractionalDigits>(beforeIncrease);
+        var fd = new FastDecimal32<Four>(beforeIncrease);
         fd++;
-        Assert.Equal(new FastDecimal32<FourFractionalDigits>(expectedAfterIncrease), fd);
+        Assert.Equal(new FastDecimal32<Four>(expectedAfterIncrease), fd);
     }
 
     [Fact]
     public void ShouldOverflowInUncheckedEnvironmentWhenIncrementResultIsBiggerThanMaxValue()
     {
-        var fd = FastDecimal32<FourFractionalDigits>.MaxValue;
+        var fd = FastDecimal32<Four>.MaxValue;
         fd++;
-        Assert.Equal(new FastDecimal32<FourFractionalDigits>(int.MinValue + 0_9999), fd);
+        Assert.Equal(new FastDecimal32<Four>(int.MinValue + 0_9999), fd);
     }
 
     [Fact]
     public void ShouldThrowExceptionInCheckedEnvironmentWhenIncrementResultIsBiggerThanMaxValue()
     {
-        var fd = FastDecimal32<FourFractionalDigits>.MaxValue;
+        var fd = FastDecimal32<Four>.MaxValue;
         Assert.Throws<OverflowException>(() => 
             checked(fd++));
     }
@@ -247,23 +247,23 @@ public class FastDecimal32Tests
     [InlineData(0_5875, -0_4125)]
     public void ShouldIncreaseValueByOneWhenUsingDecrementOperator(int beforeIncrease, int expectedAfterIncrease)
     {
-        var fd = new FastDecimal32<FourFractionalDigits>(beforeIncrease);
+        var fd = new FastDecimal32<Four>(beforeIncrease);
         fd--;
-        Assert.Equal(new FastDecimal32<FourFractionalDigits>(expectedAfterIncrease), fd);
+        Assert.Equal(new FastDecimal32<Four>(expectedAfterIncrease), fd);
     }
 
     [Fact]
     public void ShouldOverflowInUncheckedEnvironmentWhenDecrementResultIsSmallerThanMinValue()
     {
-        var fd = FastDecimal32<FourFractionalDigits>.MinValue;
+        var fd = FastDecimal32<Four>.MinValue;
         fd--;
-        Assert.Equal(new FastDecimal32<FourFractionalDigits>(int.MaxValue - 0_9999), fd);
+        Assert.Equal(new FastDecimal32<Four>(int.MaxValue - 0_9999), fd);
     }
 
     [Fact]
     public void ShouldThrowExceptionInCheckedEnvironmentWhenDecrementResultIsSmallerThanMinValue()
     {
-        var fd = FastDecimal32<FourFractionalDigits>.MinValue;
+        var fd = FastDecimal32<Four>.MinValue;
         Assert.Throws<OverflowException>(() => 
             checked(fd--));
     }
@@ -276,7 +276,7 @@ public class FastDecimal32Tests
     [InlineData(int.MaxValue)]
     public void PlusOperatorShouldNotChangeValue(int value)
     {
-        var fd = new FastDecimal32<FourFractionalDigits>(value);
+        var fd = new FastDecimal32<Four>(value);
         Assert.Equal(fd, +fd);
     }
     
@@ -287,22 +287,22 @@ public class FastDecimal32Tests
     [InlineData(int.MaxValue, -int.MaxValue)]
     public void MinusOperatorShouldNegateValueWhenNegatedValueIsWithinRange(int value, int negatedValue)
     {
-        var fd = new FastDecimal32<FourFractionalDigits>(value);
-        var negatedFd = new FastDecimal32<FourFractionalDigits>(negatedValue);
+        var fd = new FastDecimal32<Four>(value);
+        var negatedFd = new FastDecimal32<Four>(negatedValue);
         Assert.Equal(negatedFd, -fd);
     }
     
     [Fact]
     public void NegatingMinValueShouldOverflowInUncheckedEnvironment()
     {
-        Assert.Equal(FastDecimal32<FourFractionalDigits>.MinValue, -FastDecimal32<FourFractionalDigits>.MinValue);
+        Assert.Equal(FastDecimal32<Four>.MinValue, -FastDecimal32<Four>.MinValue);
     }
     
     [Fact]
     public void NegatingMinValueShouldThrowExceptionInCheckedEnvironment()
     {
         Assert.Throws<OverflowException>(() => 
-            checked(-FastDecimal32<FourFractionalDigits>.MinValue));
+            checked(-FastDecimal32<Four>.MinValue));
     }
     
     [Theory]
@@ -312,9 +312,9 @@ public class FastDecimal32Tests
     [InlineData(int.MaxValue, int.MaxValue)]
     public void AbsShouldReturnAbsoluteValueWhenAbsoluteValueIsWithinRange(int value, int absoluteValue)
     {
-        var fd = new FastDecimal32<FourFractionalDigits>(value);
-        var absoluteFd = new FastDecimal32<FourFractionalDigits>(absoluteValue);
-        Assert.Equal(absoluteFd, FastDecimal32<FourFractionalDigits>.Abs(fd));
+        var fd = new FastDecimal32<Four>(value);
+        var absoluteFd = new FastDecimal32<Four>(absoluteValue);
+        Assert.Equal(absoluteFd, FastDecimal32<Four>.Abs(fd));
     }
     
     
@@ -322,7 +322,7 @@ public class FastDecimal32Tests
     public void AbsShouldThrowExceptionWhenAbsoluteValueIsOutsideRange()
     {
         Assert.Throws<OverflowException>(() => 
-            FastDecimal32<FourFractionalDigits>.Abs(FastDecimal32<FourFractionalDigits>.MinValue));
+            FastDecimal32<Four>.Abs(FastDecimal32<Four>.MinValue));
     }
     
     [Theory]
@@ -335,8 +335,8 @@ public class FastDecimal32Tests
     [InlineData(123_2000, false)]
     public void IsIntegerShouldReturnTrueIffValueIsInteger(int value, bool expected)
     {
-        var fd = new FastDecimal32<FourFractionalDigits>(value);
-        Assert.Equal(expected, FastDecimal32<FourFractionalDigits>.IsInteger(fd));
+        var fd = new FastDecimal32<Four>(value);
+        Assert.Equal(expected, FastDecimal32<Four>.IsInteger(fd));
     }
     
     [Theory]
@@ -349,8 +349,8 @@ public class FastDecimal32Tests
     [InlineData(123_2000, false)]
     public void IsEvenIntegerShouldReturnTrueIffValueIsInteger(int value, bool expected)
     {
-        var fd = new FastDecimal32<FourFractionalDigits>(value);
-        Assert.Equal(expected, FastDecimal32<FourFractionalDigits>.IsEvenInteger(fd));
+        var fd = new FastDecimal32<Four>(value);
+        Assert.Equal(expected, FastDecimal32<Four>.IsEvenInteger(fd));
     }
     
     [Theory]
@@ -363,8 +363,8 @@ public class FastDecimal32Tests
     [InlineData(123_2000, false)]
     public void IsOddIntegerShouldReturnTrueIffValueIsInteger(int value, bool expected)
     {
-        var fd = new FastDecimal32<FourFractionalDigits>(value);
-        Assert.Equal(expected, FastDecimal32<FourFractionalDigits>.IsOddInteger(fd));
+        var fd = new FastDecimal32<Four>(value);
+        Assert.Equal(expected, FastDecimal32<Four>.IsOddInteger(fd));
     }
     
     // ShouldConvertToLEssPrecisionWithRounding
@@ -388,25 +388,25 @@ public class FastDecimal32Tests
     
     public void ShouldChangePrecisionUsingProvidedMidpointRoundingWhenTargetFastDecimalHasLessPrecision(int initial, int expected, MidpointRounding rounding)
     {
-        var initialFd = new FastDecimal32<SevenFractionalDigits>(initial);
-        var expectedFd = new FastDecimal32<FourFractionalDigits>(expected);
-        Assert.Equal(expectedFd, initialFd.ChangePrecision<FourFractionalDigits>(rounding));
+        var initialFd = new FastDecimal32<Seven>(initial);
+        var expectedFd = new FastDecimal32<Four>(expected);
+        Assert.Equal(expectedFd, initialFd.ChangePrecision<Four>(rounding));
     }
 
     [Fact]
     public void ShouldChangePrecisionWhenTargetFastDecimalHasMorePrecision()
     {
-        var fd = new FastDecimal32<FourFractionalDigits>(89_3467);
-        var expected = new FastDecimal32<SevenFractionalDigits>(89_3467000);
-        Assert.Equal(expected, fd.ChangePrecision<SevenFractionalDigits>());
+        var fd = new FastDecimal32<Four>(89_3467);
+        var expected = new FastDecimal32<Seven>(89_3467000);
+        Assert.Equal(expected, fd.ChangePrecision<Seven>());
     }
 
     [Fact]
     public void ChangePrecisionShouldThrowExceptionWhenValueIsOutOfRangeForTargetFastDecimal()
     {
-        var fd = new FastDecimal32<FourFractionalDigits>(4389_3467);
+        var fd = new FastDecimal32<Four>(4389_3467);
         Assert.Throws<OverflowException>(() =>
-            fd.ChangePrecision<TenFractionalDigits>());
+            fd.ChangePrecision<Ten>());
     }
 
     [Theory]
@@ -427,8 +427,8 @@ public class FastDecimal32Tests
     public void ShouldCastDecimalToFastDecimalWithHigherPrecisionWhenValueIsIWithinRange()
     {
         var d = 345.435m;
-        var expectedFd = new FastDecimal32<FiveFractionalDigits>(345_43500);
-        Assert.Equal(expectedFd, (FastDecimal32<FiveFractionalDigits>) d);
+        var expectedFd = new FastDecimal32<Five>(345_43500);
+        Assert.Equal(expectedFd, (FastDecimal32<Five>) d);
     }
 
     [Theory]
@@ -437,16 +437,16 @@ public class FastDecimal32Tests
     public void ShouldCastDecimalToFastDecimalWithLowerPrecisionUsingRoundingToEven(string decimalString, int expectedFdValue)
     {
         var d = decimal.Parse(decimalString, CultureInfo.InvariantCulture);
-        var expectedFd = new FastDecimal32<FourFractionalDigits>(expectedFdValue);
-        Assert.Equal(expectedFd, (FastDecimal32<FourFractionalDigits>) d);
+        var expectedFd = new FastDecimal32<Four>(expectedFdValue);
+        Assert.Equal(expectedFd, (FastDecimal32<Four>) d);
     }
 
     [Fact]
     public void ShouldOverflowInUncheckedEnvironmentWhenCastingDecimalToFastDecimalAndValueIsOutsideRange()
     {
         var d = 432879823329832489.0159m;
-        var expectedFd = new FastDecimal32<FourFractionalDigits>(-179233_5313);
-        Assert.Equal(expectedFd, (FastDecimal32<FourFractionalDigits>) d);
+        var expectedFd = new FastDecimal32<Four>(-179233_5313);
+        Assert.Equal(expectedFd, (FastDecimal32<Four>) d);
     }
 
     [Fact]
@@ -454,6 +454,6 @@ public class FastDecimal32Tests
     {
         var d = 432879823329832489.0159m;
         Assert.Throws<OverflowException>(() => 
-            checked((FastDecimal32<FourFractionalDigits>) d));
+            checked((FastDecimal32<Four>) d));
     }
 }
