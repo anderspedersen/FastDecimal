@@ -18,7 +18,7 @@ public readonly struct FastDecimal32<T> :
     /// <summary>Initializes a new instance o new instance of the <see cref="FastDecimal32{T}" /> struct using the supplied <see cref="decimal" /> value.</summary>
     /// <param name="value">The <see cref="decimal" /> to store as a <see cref="FastDecimal32{T}" /> struct.</param>
     /// <exception cref="OverflowException"><paramref name="value" /> is not representable by <see cref="FastDecimal32{T}" />.</exception>
-    internal FastDecimal32(decimal value)
+    public FastDecimal32(decimal value)
     {
         this = checked((FastDecimal32<T>) value);
     }
