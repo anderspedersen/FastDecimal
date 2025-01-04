@@ -9,7 +9,7 @@
         <Title>FastDecimal</Title>
         <Authors>Anders Pedersen</Authors>
         <Description>A fast fixed-point decimal type with strongly typed, configurable precision for .NET.</Description>
-        <TargetFrameworks>net8.0;net7.0</TargetFrameworks>
+        <TargetFrameworks>net7.0;net8.0;net9.0</TargetFrameworks>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageProjectUrl>https://github.com/anderspedersen/FastDecimal</PackageProjectUrl>
