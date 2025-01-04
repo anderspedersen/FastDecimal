@@ -382,10 +382,23 @@ public readonly struct FastDecimal64<T> :
         {
             if (isChecked && scaledDividendHigh >= divisor)
                 throw new OverflowException();
-
-            var (q, rem) = UInt128.DivRem(new UInt128(scaledDividendHigh, scaledDividendLow), new UInt128(0,divisor));
-            var r = rem.Lower;
             
+            UInt128 q;
+            ulong r;
+# if NET9_0
+            if (X86Base.X64.IsSupported && scaledDividendHigh < divisor)
+            {
+#pragma warning disable SYSLIB5004
+                (var qLow, r) = X86Base.X64.DivRem(scaledDividendLow, scaledDividendHigh, divisor);
+#pragma warning restore SYSLIB5004
+                q = new UInt128(0, qLow);
+            }
+            else
+#endif
+            {
+                (q, r) = UInt128.DivRem(new UInt128(scaledDividendHigh, scaledDividendLow), divisor);
+            }
+
             q += new UInt128(0, Rounding.Round64(q.Lower, r, divisor, negative, mode));
 
             if (isChecked)

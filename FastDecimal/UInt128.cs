@@ -64,13 +64,13 @@ internal readonly struct UInt128
         return (int) ulong.LeadingZeroCount(value.Upper);
     }
 
-    public static (UInt128 Quotient, UInt128 Remainder) DivRem(UInt128 left, UInt128 right)
+    public static (UInt128 Quotient, ulong Remainder) DivRem(UInt128 left, ulong right)
     {
         UInt128 quotient = left / right;
-        return (quotient, left - (quotient * right));
+        return (quotient, (left - quotient * right).Lower);
     }
     
-    public static UInt128 operator /(UInt128 left, UInt128 right)
+    public static UInt128 operator /(UInt128 left, ulong right)
         {
             return DivideSlow(left, right);
 
@@ -112,7 +112,7 @@ internal readonly struct UInt128
                 return (chkHi > valHi) || ((chkHi == valHi) && (chkLo > valLo));
             }
 
-            unsafe static UInt128 DivideSlow(UInt128 quotient, UInt128 divisor)
+            unsafe static UInt128 DivideSlow(UInt128 quotient, ulong divisor)
             {
                 // This is the same algorithm currently used by BigInteger so
                 // we need to get a Span<uint> containing the value represented
@@ -136,15 +136,12 @@ internal readonly struct UInt128
 
                 // Repeat the same operation with the divisor
 
-                uint* pRight = stackalloc uint[Size / sizeof(uint)];
+                uint* pRight = stackalloc uint[sizeof(ulong) / sizeof(uint)];
 
-                Unsafe.WriteUnaligned(ref *(byte*)(pRight + 0), (uint)(divisor.Lower >> 00));
-                Unsafe.WriteUnaligned(ref *(byte*)(pRight + 1), (uint)(divisor.Lower >> 32));
+                Unsafe.WriteUnaligned(ref *(byte*)(pRight + 0), (uint)(divisor >> 00));
+                Unsafe.WriteUnaligned(ref *(byte*)(pRight + 1), (uint)(divisor >> 32));
 
-                Unsafe.WriteUnaligned(ref *(byte*)(pRight + 2), (uint)(divisor.Upper >> 00));
-                Unsafe.WriteUnaligned(ref *(byte*)(pRight + 3), (uint)(divisor.Upper >> 32));
-
-                Span<uint> right = new Span<uint>(pRight, (Size / sizeof(uint)) - (LeadingZeroCount(divisor) / 32));
+                Span<uint> right = new Span<uint>(pRight, (sizeof(ulong) / sizeof(uint)) - ((int)ulong.LeadingZeroCount(divisor) / 32));
 
                 Span<uint> rawBits = stackalloc uint[Size / sizeof(uint)];
                 rawBits.Clear();
@@ -329,6 +326,15 @@ internal readonly struct UInt128
     {
         ulong upper = Math.BigMul(left.Lower, right.Lower, out ulong lower);
         upper += (left.Upper * right.Lower) + (left.Lower * right.Upper);
+        return new UInt128(upper, lower);
+    }
+    
+    /// <inheritdoc cref="IMultiplyOperators{TSelf, TOther, TResult}.op_Multiply(TSelf, TOther)" />
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static UInt128 operator *(UInt128 left, ulong right)
+    {
+        ulong upper = Math.BigMul(left.Lower, right, out ulong lower);
+        upper += left.Upper * right;
         return new UInt128(upper, lower);
     }
 
